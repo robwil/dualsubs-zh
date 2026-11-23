@@ -1,0 +1,27 @@
+[project]
+name = "dualsubs-zh"
+version = "0.1.0"
+description = "Generate dual English + Simplified Chinese .ass sidecar subtitles for Jellyfin and other players"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+dependencies = ["pysubs2>=1.7"]
+
+[project.scripts]
+dualsubs-zh = "dualsubs_zh.cli:main"
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+# Always resolve from public PyPI, regardless of any machine-wide index config.
+[[tool.uv.index]]
+name = "pypi"
+url = "https://pypi.org/simple/"
+default = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
