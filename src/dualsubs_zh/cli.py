@@ -131,16 +131,28 @@ def positive_int(value: str) -> int:
     return n
 
 
+def positive_float(value: str) -> float:
+    x = float(value)
+    if x <= 0:
+        raise argparse.ArgumentTypeError("must be > 0")
+    return x
+
+
 def parse_args(argv: list[str] | None) -> argparse.Namespace:
     p = argparse.ArgumentParser(
         prog="dualsubs-zh",
         description="Write <video>.zh.dual.ass sidecars combining English and Simplified Chinese subtitles.",
     )
     p.add_argument("folder", type=Path, help="folder of videos (not recursive)")
-    p.add_argument("--zh-position", choices=["top", "bottom"], default="bottom",
-                   help="Chinese stacked above English at bottom, or at top of screen (default: bottom)")
+    p.add_argument("--layout", choices=["stacked", "split"], default="stacked",
+                   help="stacked: both lines at the bottom; split: upper line at the top of the screen "
+                        "(default: stacked)")
+    p.add_argument("--en-first", action="store_true",
+                   help="make English the upper line (default: Chinese is the upper line)")
     p.add_argument("--font", default=MergeOptions.zh_font, help=f"Chinese font name (default: {MergeOptions.zh_font})")
-    p.add_argument("--font-scale", type=float, default=1.0, help="multiply default text size (default: 1.0)")
+    p.add_argument("--font-scale", type=positive_float, default=1.0, help="multiply all text sizes (default: 1.0)")
+    p.add_argument("--en-scale", type=positive_float, default=MergeOptions.en_scale,
+                   help=f"English size relative to Chinese (default: {MergeOptions.en_scale})")
     p.add_argument("--force", action="store_true", help="overwrite existing/outdated sidecars")
     p.add_argument("--jobs", "-j", type=positive_int, default=DEFAULT_JOBS,
                    help=f"videos to process in parallel (default: {DEFAULT_JOBS})")
@@ -161,7 +173,10 @@ def main(argv: list[str] | None = None, deps: Deps | None = None) -> int:
         print(f"error: {args.folder} is not a directory", file=sys.stderr)
         return 2
 
-    options = MergeOptions(zh_position=args.zh_position, zh_font=args.font, font_scale=args.font_scale)
+    options = MergeOptions(
+        layout=args.layout, en_first=args.en_first, zh_font=args.font,
+        font_scale=args.font_scale, en_scale=args.en_scale,
+    )
     videos = sorted(p for p in args.folder.iterdir() if p.is_file() and p.suffix.lower() in VIDEO_EXTS)
     def run_one(video: Path) -> tuple[str, str]:
         try:

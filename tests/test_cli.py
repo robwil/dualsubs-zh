@@ -56,9 +56,9 @@ def test_changed_options_reported_outdated_then_force(folder, capsys):
     path, deps, _ = folder
     run(path, deps)
     capsys.readouterr()
-    run(path, deps, "--zh-position", "top")
+    run(path, deps, "--layout", "split")
     assert "outdated" in capsys.readouterr().out
-    run(path, deps, "--zh-position", "top", "--force")
+    run(path, deps, "--layout", "split", "--force")
     assert "2 created" in capsys.readouterr().out
 
 
@@ -112,3 +112,10 @@ def test_jobs_must_be_positive(folder, bad):
     path, deps, _ = folder
     with pytest.raises(SystemExit):
         run(path, deps, "--jobs", bad)
+
+
+@pytest.mark.parametrize("bad", ["0", "-1"])
+def test_en_scale_must_be_positive(folder, bad):
+    path, deps, _ = folder
+    with pytest.raises(SystemExit):
+        run(path, deps, "--en-scale", bad)

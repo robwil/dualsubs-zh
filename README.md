@@ -4,8 +4,10 @@ Show **English and Simplified Chinese subtitles at the same time** in Jellyfin (
 
 Most players, including the Jellyfin clients, only show one subtitle track at a time. `dualsubs-zh` reads the English and Simplified Chinese text tracks embedded in each video and merges them into one styled `.ass` sidecar file:
 
-- English: white, at the bottom
-- Simplified Chinese: pale yellow, stacked just above the English (or at the top of the screen with `--zh-position top`)
+- Simplified Chinese: pale yellow, stacked just above the English
+- English: white, at the bottom, slightly smaller (80%)
+
+Viewers tend to read the upper line first, so the language you're learning goes on top by default. The order, layout, and sizes are all configurable.
 
 Your video files are never modified.
 
@@ -26,9 +28,11 @@ Options:
 
 | Flag | Default | Meaning |
 |---|---|---|
-| `--zh-position bottom\|top` | `bottom` | Chinese stacked above English, or at the top of the screen |
+| `--layout stacked\|split` | `stacked` | Both lines at the bottom, or the upper line at the top of the screen |
+| `--en-first` | | Make English the upper line instead of Chinese |
+| `--en-scale X` | `0.8` | English size relative to Chinese |
 | `--font NAME` | `Noto Sans CJK SC` | Font for the Chinese line |
-| `--font-scale X` | `1.0` | Scale text size (base is 5.5% of video height) |
+| `--font-scale X` | `1.0` | Scale all text (Chinese base size is 5.5% of video height) |
 | `--jobs N`, `-j N` | `min(4, CPUs)` | Videos processed in parallel |
 | `--dry-run` | | Show which tracks would be used without writing anything |
 | `--force` | | Regenerate outdated sidecars / overwrite files not made by this tool |
