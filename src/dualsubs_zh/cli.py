@@ -15,7 +15,7 @@ from pathlib import Path
 from typing import Callable
 
 from . import __version__
-from .extract import extract_srt
+from .extract import extract_srts
 from .merge import MergeOptions, build_dual
 from .probe import SelectionError, parse_media_info, run_ffprobe, select_tracks
 
@@ -30,7 +30,7 @@ class Deps:
     """External calls, swappable in tests."""
 
     probe: Callable[[Path], dict] = run_ffprobe
-    extract: Callable[[Path, int], str] = extract_srt
+    extract: Callable[[Path, list[int]], dict[int, str]] = extract_srts
 
 
 def output_path(video: Path) -> Path:
@@ -108,9 +108,10 @@ def process_video(video: Path, options: MergeOptions, force: bool, dry_run: bool
     if dry_run:
         return "would create", detail
 
+    texts = deps.extract(video, [sel.english.index, sel.chinese.index])
     subs = build_dual(
-        deps.extract(video, sel.english.index),
-        deps.extract(video, sel.chinese.index),
+        texts[sel.english.index],
+        texts[sel.chinese.index],
         info.width,
         info.height,
         options,

@@ -15,9 +15,9 @@ def folder(tmp_path, sample_probe, en_srt, zh_srt):
     (sub / "deep.mkv").write_bytes(b"not processed")
     calls = []
 
-    def extract(video: Path, index: int) -> str:
-        calls.append((video.name, index))
-        return en_srt if index == 5 else zh_srt
+    def extract(video: Path, indices: list[int]) -> dict[int, str]:
+        calls.append((video.name, tuple(indices)))
+        return {i: en_srt if i == 5 else zh_srt for i in indices}
 
     deps = cli.Deps(probe=lambda _: sample_probe, extract=extract)
     return tmp_path, deps, calls
@@ -36,7 +36,8 @@ def test_creates_sidecars_non_recursively(folder, capsys):
     text = out1.read_text(encoding="utf-8")
     assert text.startswith("[Script Info]\n; dualsubs-zh: v1 src=")
     assert "Style: ZH," in text and "各位同学" in text
-    assert sorted(calls) == [("ep1.mkv", 5), ("ep1.mkv", 27), ("ep2.mkv", 5), ("ep2.mkv", 27)]
+    # One extraction (single read of the file) per video, covering both tracks.
+    assert sorted(calls) == [("ep1.mkv", (5, 27)), ("ep2.mkv", (5, 27))]
     assert "2 created" in capsys.readouterr().out
 
 
@@ -81,7 +82,7 @@ def test_dry_run_writes_nothing(folder, capsys):
 def test_error_sets_exit_code(folder, capsys):
     path, deps, _ = folder
 
-    def boom(video, index):
+    def boom(video, indices):
         raise OSError("disk on fire")
 
     deps.extract = boom
