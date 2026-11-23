@@ -10,6 +10,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Callable
@@ -120,6 +121,16 @@ def process_video(video: Path, options: MergeOptions, force: bool, dry_run: bool
     return "created", detail
 
 
+DEFAULT_JOBS = min(4, os.cpu_count() or 1)
+
+
+def positive_int(value: str) -> int:
+    n = int(value)
+    if n < 1:
+        raise argparse.ArgumentTypeError("must be >= 1")
+    return n
+
+
 def parse_args(argv: list[str] | None) -> argparse.Namespace:
     p = argparse.ArgumentParser(
         prog="dualsubs-zh",
@@ -131,6 +142,8 @@ def parse_args(argv: list[str] | None) -> argparse.Namespace:
     p.add_argument("--font", default=MergeOptions.zh_font, help=f"Chinese font name (default: {MergeOptions.zh_font})")
     p.add_argument("--font-scale", type=float, default=1.0, help="multiply default text size (default: 1.0)")
     p.add_argument("--force", action="store_true", help="overwrite existing/outdated sidecars")
+    p.add_argument("--jobs", "-j", type=positive_int, default=DEFAULT_JOBS,
+                   help=f"videos to process in parallel (default: {DEFAULT_JOBS})")
     p.add_argument("--dry-run", action="store_true", help="show what would happen without writing")
     p.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
     return p.parse_args(argv)
@@ -150,14 +163,19 @@ def main(argv: list[str] | None = None, deps: Deps | None = None) -> int:
 
     options = MergeOptions(zh_position=args.zh_position, zh_font=args.font, font_scale=args.font_scale)
     videos = sorted(p for p in args.folder.iterdir() if p.is_file() and p.suffix.lower() in VIDEO_EXTS)
-    counts: dict[str, int] = {}
-    for video in videos:
+    def run_one(video: Path) -> tuple[str, str]:
         try:
-            status, detail = process_video(video, options, args.force, args.dry_run, deps)
+            return process_video(video, options, args.force, args.dry_run, deps)
         except (subprocess.CalledProcessError, OSError, ValueError) as e:
-            status, detail = "error", str(e)
-        counts[status] = counts.get(status, 0) + 1
-        print(f"{status:>12}  {video.name}: {detail}")
+            return "error", str(e)
+
+    # Threads are enough: the heavy lifting happens in ffmpeg subprocesses.
+    # map() yields in input order, so output stays sorted by filename.
+    counts: dict[str, int] = {}
+    with ThreadPoolExecutor(max_workers=args.jobs) as pool:
+        for video, (status, detail) in zip(videos, pool.map(run_one, videos)):
+            counts[status] = counts.get(status, 0) + 1
+            print(f"{status:>12}  {video.name}: {detail}", flush=True)
 
     summary = ", ".join(f"{n} {s}" for s, n in sorted(counts.items())) or "no videos found"
     print(f"\n{summary}")

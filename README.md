@@ -29,6 +29,7 @@ Options:
 | `--zh-position top\|bottom` | `top` | Chinese at the top, or stacked above English at the bottom |
 | `--font NAME` | `Noto Sans CJK SC` | Font for the Chinese line |
 | `--font-scale X` | `1.0` | Scale text size (base is 5.5% of video height) |
+| `--jobs N`, `-j N` | `min(4, CPUs)` | Videos processed in parallel |
 | `--dry-run` | | Show which tracks would be used without writing anything |
 | `--force` | | Regenerate outdated sidecars / overwrite files not made by this tool |
 

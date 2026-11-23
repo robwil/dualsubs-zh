@@ -93,3 +93,22 @@ def test_error_sets_exit_code(folder, capsys):
 
 def test_not_a_directory(tmp_path):
     assert cli.main([str(tmp_path / "nope")], deps=cli.Deps()) == 2
+
+
+def test_parallel_jobs_match_serial_output(folder, capsys):
+    path, deps, calls = folder
+    for i in range(3, 9):
+        (path / f"ep{i}.mkv").write_bytes(f"fake video {i}".encode())
+    assert run(path, deps, "--jobs", "4") == 0
+    out = capsys.readouterr().out
+    assert "8 created" in out
+    names = [line.split()[1] for line in out.splitlines() if line.strip().startswith("created")]
+    assert names == sorted(names)  # printed in filename order despite parallelism
+    assert len(calls) == 8
+
+
+@pytest.mark.parametrize("bad", ["0", "-2"])
+def test_jobs_must_be_positive(folder, bad):
+    path, deps, _ = folder
+    with pytest.raises(SystemExit):
+        run(path, deps, "--jobs", bad)
