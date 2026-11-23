@@ -18,15 +18,15 @@ def test_missing_dimensions_fall_back_to_1080p(en_srt, zh_srt):
     assert (subs.info["PlayResX"], subs.info["PlayResY"]) == ("1920", "1080")
 
 
-def test_default_layout_en_bottom_zh_top(en_srt, zh_srt):
-    subs = build_dual(en_srt, zh_srt, 1920, 1080)
+def test_top_layout_en_bottom_zh_top(en_srt, zh_srt):
+    subs = build_dual(en_srt, zh_srt, 1920, 1080, MergeOptions(zh_position="top"))
     assert subs.styles["EN"].alignment == pysubs2.Alignment.BOTTOM_CENTER
     assert subs.styles["ZH"].alignment == pysubs2.Alignment.TOP_CENTER
     assert subs.styles["ZH"].fontname == "Noto Sans CJK SC"
 
 
-def test_bottom_layout_stacks_zh_above_en(en_srt, zh_srt):
-    subs = build_dual(en_srt, zh_srt, 1920, 1080, MergeOptions(zh_position="bottom"))
+def test_default_layout_stacks_zh_above_en(en_srt, zh_srt):
+    subs = build_dual(en_srt, zh_srt, 1920, 1080)
     assert subs.styles["ZH"].alignment == pysubs2.Alignment.BOTTOM_CENTER
     assert subs.styles["ZH"].marginv > subs.styles["EN"].marginv
 

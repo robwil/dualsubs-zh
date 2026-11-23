@@ -56,9 +56,9 @@ def test_changed_options_reported_outdated_then_force(folder, capsys):
     path, deps, _ = folder
     run(path, deps)
     capsys.readouterr()
-    run(path, deps, "--zh-position", "bottom")
+    run(path, deps, "--zh-position", "top")
     assert "outdated" in capsys.readouterr().out
-    run(path, deps, "--zh-position", "bottom", "--force")
+    run(path, deps, "--zh-position", "top", "--force")
     assert "2 created" in capsys.readouterr().out
 
 

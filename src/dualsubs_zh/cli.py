@@ -137,8 +137,8 @@ def parse_args(argv: list[str] | None) -> argparse.Namespace:
         description="Write <video>.zh.dual.ass sidecars combining English and Simplified Chinese subtitles.",
     )
     p.add_argument("folder", type=Path, help="folder of videos (not recursive)")
-    p.add_argument("--zh-position", choices=["top", "bottom"], default="top",
-                   help="Chinese at top of screen, or stacked above English at bottom (default: top)")
+    p.add_argument("--zh-position", choices=["top", "bottom"], default="bottom",
+                   help="Chinese stacked above English at bottom, or at top of screen (default: bottom)")
     p.add_argument("--font", default=MergeOptions.zh_font, help=f"Chinese font name (default: {MergeOptions.zh_font})")
     p.add_argument("--font-scale", type=float, default=1.0, help="multiply default text size (default: 1.0)")
     p.add_argument("--force", action="store_true", help="overwrite existing/outdated sidecars")

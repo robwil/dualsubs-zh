@@ -4,8 +4,8 @@ Show **English and Simplified Chinese subtitles at the same time** in Jellyfin (
 
 Most players, including the Jellyfin clients, only show one subtitle track at a time. `dualsubs-zh` reads the English and Simplified Chinese text tracks embedded in each video and merges them into one styled `.ass` sidecar file:
 
-- English: white, bottom of the screen
-- Simplified Chinese: pale yellow, top of the screen (or stacked above the English with `--zh-position bottom`)
+- English: white, at the bottom
+- Simplified Chinese: pale yellow, stacked just above the English (or at the top of the screen with `--zh-position top`)
 
 Your video files are never modified.
 
@@ -26,7 +26,7 @@ Options:
 
 | Flag | Default | Meaning |
 |---|---|---|
-| `--zh-position top\|bottom` | `top` | Chinese at the top, or stacked above English at the bottom |
+| `--zh-position bottom\|top` | `bottom` | Chinese stacked above English, or at the top of the screen |
 | `--font NAME` | `Noto Sans CJK SC` | Font for the Chinese line |
 | `--font-scale X` | `1.0` | Scale text size (base is 5.5% of video height) |
 | `--jobs N`, `-j N` | `min(4, CPUs)` | Videos processed in parallel |

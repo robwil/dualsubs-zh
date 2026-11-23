@@ -21,7 +21,7 @@ _FONT_TAG_RE = re.compile(r"\{\\(?:fn|c|1c|3c|fs)[^}]*\}")
 
 @dataclass(frozen=True)
 class MergeOptions:
-    zh_position: str = "top"  # "top" or "bottom" (stacked above English)
+    zh_position: str = "bottom"  # "bottom" (stacked above English) or "top" of screen
     zh_font: str = "Noto Sans CJK SC"
     en_font: str = "Arial"
     font_scale: float = 1.0
