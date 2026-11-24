@@ -24,6 +24,8 @@ uv run dualsubs-zh "/media/tv/Some Show/Season 1"
 
 For every `.mkv` / `.mp4` / `.m4v` directly in that folder (subfolders are not processed), this writes `<video name>.zh.dual.ass` next to the video. Jellyfin detects it as an external Chinese subtitle titled "dual". Rescan the library if it doesn't appear.
 
+> **Sonarr/Radarr users:** if your downloads are hard-linked or copied into a separate library folder, run the tool on the **library folder** that Jellyfin scans. Sidecars written next to the original downloads won't be seen.
+
 Options:
 
 | Flag | Default | Meaning |
